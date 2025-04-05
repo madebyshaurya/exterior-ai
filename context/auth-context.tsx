@@ -27,25 +27,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Function to create or update user in Firestore
+  const createOrUpdateUser = async (user: User) => {
+    // Check if user exists in Firestore
+    const userRef = doc(db, "users", user.uid);
+    const userSnap = await getDoc(userRef);
+
+    // If user doesn't exist in Firestore, create a new document
+    if (!userSnap.exists()) {
+      await setDoc(userRef, {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName,
+        photoURL: user.photoURL,
+        createdAt: serverTimestamp(),
+      });
+    }
+  };
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setUser(user);
-
-        // Check if user exists in Firestore
-        const userRef = doc(db, "users", user.uid);
-        const userSnap = await getDoc(userRef);
-
-        // If user doesn't exist in Firestore, create a new document
-        if (!userSnap.exists()) {
-          await setDoc(userRef, {
-            uid: user.uid,
-            email: user.email,
-            displayName: user.displayName,
-            photoURL: user.photoURL,
-            createdAt: serverTimestamp(),
-          });
-        }
+        await createOrUpdateUser(user);
       } else {
         setUser(null);
       }
@@ -106,20 +110,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // Explicitly set the user in our state
           setUser(result.user);
 
-          // Check if user exists in Firestore
-          const userRef = doc(db, "users", result.user.uid);
-          const userSnap = await getDoc(userRef);
-
-          // If user doesn't exist in Firestore, create a new document
-          if (!userSnap.exists()) {
-            await setDoc(userRef, {
-              uid: result.user.uid,
-              email: result.user.email,
-              displayName: result.user.displayName,
-              photoURL: result.user.photoURL,
-              createdAt: serverTimestamp(),
-            });
-          }
+          // Create or update user in Firestore
+          await createOrUpdateUser(result.user);
         } else {
           console.log("No redirect result");
         }

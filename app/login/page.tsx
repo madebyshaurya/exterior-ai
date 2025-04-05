@@ -26,26 +26,6 @@ export default function LoginPage() {
     }
   }, [user, authLoading, router]);
 
-  // Add a separate effect to handle initial loading
-  useEffect(() => {
-    // This will run once when the component mounts
-    const checkAuthState = async () => {
-      try {
-        // Wait a moment to ensure Firebase auth has initialized
-        if (!authLoading && user) {
-          console.log(
-            "Initial check: User is logged in, redirecting to dashboard"
-          );
-          router.push("/dashboard");
-        }
-      } catch (error) {
-        console.error("Error checking auth state:", error);
-      }
-    };
-
-    checkAuthState();
-  }, []); // Empty dependency array means this runs once on mount
-
   const handleGoogleLogin = async () => {
     try {
       setIsLoading(true);

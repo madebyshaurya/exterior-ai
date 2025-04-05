@@ -9,7 +9,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyCzV3W_Vo_BN2o9s-Rk6ReJDAMMIJlgbm4",
   authDomain: "exteriorai-5eaeb.firebaseapp.com",
   projectId: "exteriorai-5eaeb",
-  storageBucket: "exteriorai-5eaeb.firebasestorage.app",
+  storageBucket: "exteriorai-5eaeb.appspot.com",
   messagingSenderId: "297570152235",
   appId: "1:297570152235:web:4418ab3b6deb3837915f6e",
   measurementId: "G-L628103MMR",

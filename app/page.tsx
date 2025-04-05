@@ -4,8 +4,7 @@ import Link from "next/link";
 import { ArrowRight, Leaf, Sparkles, Upload, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-// Import the new components at the top of the file
-import TestimonialCarousel from "@/components/testimonial-carousel";
+// Import the components at the top of the file
 import AnimatedCounter from "@/components/animated-counter";
 import FaqAccordion from "@/components/faq-accordion";
 import ParallaxElement from "@/components/parallax-element";
