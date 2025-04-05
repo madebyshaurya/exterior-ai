@@ -103,7 +103,7 @@ export default function LandingPage() {
               >
                 <div className="relative rounded-xl overflow-hidden shadow-2xl">
                   <img
-                    src="/hero.png" 
+                    src="/hero.png"
                     alt="AI landscaping transformations"
                     className="w-full h-auto"
                   />
@@ -246,7 +246,7 @@ export default function LandingPage() {
               <div className="relative overflow-hidden rounded-xl shadow-lg">
                 <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent z-10" />
                 <motion.img
-                  src={`/before(${item === 1 ? 1 : 3}).webp`}
+                  src={`${item === 1 ? '/before(1).webp' : '/before2.png'}`}
                   alt={`Before transformation example ${item}`}
                   className="w-full h-auto"
                   whileHover={{ scale: 1.05 }}
@@ -268,7 +268,7 @@ export default function LandingPage() {
               <div className="relative mt-4 overflow-hidden rounded-xl shadow-lg">
                 <div className="absolute inset-0 bg-gradient-to-r from-green-600/30 to-transparent z-10" />
                 <motion.img
-                  src={`/after(${item === 1 ? 1 : 2}).webp`}
+                  src={`${item === 1 ? '/AFTER(1).webp' : '/after2.webp'}`}
                   alt={`After transformation example ${item}`}
                   className="w-full h-auto"
                   whileHover={{ scale: 1.05 }}
