@@ -1,5 +1,10 @@
-import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
-import { storage } from "./firebase";
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject,
+} from "firebase/storage";
+import { storage } from "@/lib/firebase";
 
 // Upload a file to Firebase Storage
 export async function uploadFile(file: File, path: string): Promise<string> {
@@ -15,8 +20,12 @@ export async function uploadFile(file: File, path: string): Promise<string> {
 }
 
 // Upload a project image
-export async function uploadProjectImage(userId: string, projectId: string, file: File): Promise<string> {
-  const fileName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+export async function uploadProjectImage(
+  userId: string,
+  projectId: string,
+  file: File
+): Promise<string> {
+  const fileName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
   const path = `users/${userId}/projects/${projectId}/${fileName}`;
   return uploadFile(file, path);
 }
@@ -31,4 +40,3 @@ export async function deleteFile(path: string): Promise<void> {
     throw error;
   }
 }
-

@@ -10,7 +10,7 @@ import { useAuth } from "@/context/auth-context";
 import { UserCredential } from "firebase/auth";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
-export default function LoginPage() {
+export default function SignupPage() {
   const router = useRouter();
   const {
     user,
@@ -25,7 +25,7 @@ export default function LoginPage() {
 
   // Redirect if user is already logged in
   useEffect(() => {
-    console.log("Login page auth state:", { user: !!user, authLoading });
+    console.log("Signup page auth state:", { user: !!user, authLoading });
     if (user && !authLoading) {
       console.log("User is logged in, redirecting to dashboard");
       router.push("/dashboard");
@@ -55,19 +55,19 @@ export default function LoginPage() {
     checkAuthState();
   }, []); // Empty dependency array means this runs once on mount
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleSignup = async () => {
     try {
       setIsLoading(true);
       setAuthError("");
-      console.log("Starting Google login process...");
+      console.log("Starting Google signup process...");
 
-      // Log auth state before attempting login
-      console.log("Auth state before login:", debugAuthState());
+      // Log auth state before attempting signup
+      console.log("Auth state before signup:", debugAuthState());
 
       // Using popup authentication now
       const result: UserCredential = await signInWithGoogle();
       console.log(
-        "Google login successful",
+        "Google signup successful",
         result ? "with result" : "but no result"
       );
 
@@ -85,8 +85,8 @@ export default function LoginPage() {
         setIsLoading(false);
       }
     } catch (error) {
-      console.error("Google login error:", error);
-      setAuthError("Failed to sign in with Google. Please try again.");
+      console.error("Google signup error:", error);
+      setAuthError("Failed to sign up with Google. Please try again.");
       setIsLoading(false);
 
       // Log auth state after error
@@ -164,7 +164,7 @@ export default function LoginPage() {
                   <Check className="h-8 w-8 text-green-600" />
                 </div>
                 <h2 className="text-xl font-bold text-gray-900">
-                  Login Successful!
+                  Signup Successful!
                 </h2>
                 <p className="text-gray-600 mt-2">
                   Redirecting to dashboard...
@@ -173,7 +173,7 @@ export default function LoginPage() {
             ) : (
               <motion.div>
                 <h1 className="text-2xl font-bold text-center text-gray-900 mb-6 relative z-10">
-                  Log in to your account
+                  Create your account
                 </h1>
 
                 {authError && (
@@ -185,13 +185,13 @@ export default function LoginPage() {
 
                 <div className="space-y-6 relative z-10">
                   <p className="text-center text-gray-600">
-                    Sign in with your Google account to access your projects and
-                    create new visualizations.
+                    Sign up with your Google account to start creating amazing
+                    outdoor visualizations.
                   </p>
 
                   <Button
                     type="button"
-                    onClick={handleGoogleLogin}
+                    onClick={handleGoogleSignup}
                     variant="outline"
                     className="w-full flex items-center justify-center gap-2 h-12 hover:bg-gray-50 transition-colors"
                     disabled={isLoading}
@@ -218,12 +218,23 @@ export default function LoginPage() {
                         />
                       </svg>
                     )}
-                    {isLoading ? "Signing in..." : "Continue with Google"}
+                    {isLoading ? "Signing up..." : "Continue with Google"}
                   </Button>
 
-                  <div className="text-center text-sm text-gray-500">
-                    By continuing, you agree to ExteriorAI's Terms of Service
-                    and Privacy Policy.
+                  <div className="text-center text-sm">
+                    <p className="text-gray-500 mb-2">
+                      By continuing, you agree to ExteriorAI's Terms of Service
+                      and Privacy Policy.
+                    </p>
+                    <p className="text-gray-600">
+                      Already have an account?{" "}
+                      <Link
+                        href="/login"
+                        className="text-green-600 hover:text-green-700 font-medium"
+                      >
+                        Log in
+                      </Link>
+                    </p>
                   </div>
                 </div>
               </motion.div>
