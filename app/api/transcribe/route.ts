@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const ELEVENLABS_API_KEY =
-  "sk_9956c6cad5f688eb8851576e1ab7854c0bb7fa46bee2d1f8";
+const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY!;
 
 export async function POST(request: NextRequest) {
   try {
