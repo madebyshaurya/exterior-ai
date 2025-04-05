@@ -70,36 +70,53 @@ export async function createProject(
 // Get all projects for a user
 export async function getUserProjects(userId: string) {
   try {
-    let q;
+    // Create query with ordering (requires index)
+    const q = query(
+      collection(db, "projects"),
+      where("userId", "==", userId),
+      orderBy("updatedAt", "desc")
+    );
+
     try {
-      // Try with ordering (requires index)
-      q = query(
-        collection(db, "projects"),
-        where("userId", "==", userId),
-        orderBy("updatedAt", "desc")
-      );
+      const querySnapshot = await getDocs(q);
+      return querySnapshot.docs.map(projectFromFirestore);
     } catch (indexError) {
       console.warn(
         "Index not available for projects, falling back to basic query:",
         indexError
       );
-      // Fallback to basic query without ordering
-      q = query(collection(db, "projects"), where("userId", "==", userId));
+
+      // If we get a FirebaseError about missing index, fall back to basic query
+      if (indexError.toString().includes("The query requires an index")) {
+        // Show the index creation link in console for developers
+        console.info(
+          "Create the required index here:",
+          indexError
+            .toString()
+            .match(/https:\/\/console\.firebase\.google\.com[^\s]*/)?.[0] || ""
+        );
+
+        // Fallback to basic query without ordering
+        const basicQuery = query(
+          collection(db, "projects"),
+          where("userId", "==", userId)
+        );
+        const basicSnapshot = await getDocs(basicQuery);
+        const projects = basicSnapshot.docs.map(projectFromFirestore);
+
+        // Sort the results in memory
+        projects.sort((a, b) => {
+          const dateA = a.updatedAt?.toDate?.() || new Date(0);
+          const dateB = b.updatedAt?.toDate?.() || new Date(0);
+          return dateB.getTime() - dateA.getTime(); // descending order
+        });
+
+        return projects;
+      } else {
+        // If it's not an index error, rethrow
+        throw indexError;
+      }
     }
-
-    const querySnapshot = await getDocs(q);
-    const projects = querySnapshot.docs.map(projectFromFirestore);
-
-    // If we couldn't use orderBy in the query, sort the results in memory
-    if (!q.toString().includes("orderBy")) {
-      projects.sort((a, b) => {
-        const dateA = a.updatedAt?.toDate?.() || new Date(0);
-        const dateB = b.updatedAt?.toDate?.() || new Date(0);
-        return dateB.getTime() - dateA.getTime(); // descending order
-      });
-    }
-
-    return projects;
   } catch (error) {
     console.error("Error getting user projects:", error);
     throw error;
@@ -176,40 +193,63 @@ export async function createActivityLog(
 // Get user activity logs
 export async function getUserActivity(userId: string, limit = 10) {
   try {
-    let q;
+    // Create query with ordering (requires index)
+    const q = query(
+      collection(db, "activity"),
+      where("userId", "==", userId),
+      orderBy("timestamp", "desc")
+    );
+
     try {
-      // Try with ordering (requires index)
-      q = query(
-        collection(db, "activity"),
-        where("userId", "==", userId),
-        orderBy("timestamp", "desc")
-      );
+      const querySnapshot = await getDocs(q);
+      const activities = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      // Apply limit
+      return activities.slice(0, limit);
     } catch (indexError) {
       console.warn(
         "Index not available for activity, falling back to basic query:",
         indexError
       );
-      // Fallback to basic query without ordering
-      q = query(collection(db, "activity"), where("userId", "==", userId));
+
+      // If we get a FirebaseError about missing index, fall back to basic query
+      if (indexError.toString().includes("The query requires an index")) {
+        // Show the index creation link in console for developers
+        console.info(
+          "Create the required index here:",
+          indexError
+            .toString()
+            .match(/https:\/\/console\.firebase\.google\.com[^\s]*/)?.[0] || ""
+        );
+
+        // Fallback to basic query without ordering
+        const basicQuery = query(
+          collection(db, "activity"),
+          where("userId", "==", userId)
+        );
+        const basicSnapshot = await getDocs(basicQuery);
+        const activities = basicSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+
+        // Sort the results in memory
+        activities.sort((a, b) => {
+          const dateA = a.timestamp?.toDate?.() || new Date(0);
+          const dateB = b.timestamp?.toDate?.() || new Date(0);
+          return dateB.getTime() - dateA.getTime(); // descending order
+        });
+
+        // Apply limit after sorting
+        return activities.slice(0, limit);
+      } else {
+        // If it's not an index error, rethrow
+        throw indexError;
+      }
     }
-
-    const querySnapshot = await getDocs(q);
-    const activities = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-
-    // If we couldn't use orderBy in the query, sort the results in memory
-    if (!q.toString().includes("orderBy")) {
-      activities.sort((a, b) => {
-        const dateA = a.timestamp?.toDate?.() || new Date(0);
-        const dateB = b.timestamp?.toDate?.() || new Date(0);
-        return dateB.getTime() - dateA.getTime(); // descending order
-      });
-    }
-
-    // Apply limit after sorting
-    return activities.slice(0, limit);
   } catch (error) {
     console.error("Error getting user activity:", error);
     throw error;

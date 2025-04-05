@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState, useEffect, useRef } from "react"
-import { useRouter } from "next/navigation"
+import type React from "react";
+import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import {
   Bell,
   ChevronDown,
@@ -26,10 +26,10 @@ import {
   ArrowUpRight,
   Sparkles,
   Loader2,
-} from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,10 +37,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+} from "@/components/ui/dropdown-menu";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -48,139 +48,168 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { Switch } from "@/components/ui/switch"
-import { Slider } from "@/components/ui/slider"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { useAuth } from "@/context/auth-context"
-import { useProjects } from "@/hooks/use-projects"
-import { useActivity } from "@/hooks/use-activity"
-import { format } from "date-fns"
+} from "@/components/ui/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Switch } from "@/components/ui/switch";
+import { Slider } from "@/components/ui/slider";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useAuth } from "@/context/auth-context";
+import { useProjects } from "@/hooks/use-projects";
+import { useActivity } from "@/hooks/use-activity";
+import { format } from "date-fns";
 
 export default function DashboardPage() {
-  const router = useRouter()
-  const { user, loading: authLoading, logout } = useAuth()
-  const { projects, loading: projectsLoading, addProject, deleteProject: removeProject } = useProjects()
-  const { activity, loading: activityLoading } = useActivity(5)
+  const router = useRouter();
+  const { user, loading: authLoading, logout } = useAuth();
+  const {
+    projects,
+    loading: projectsLoading,
+    addProject,
+    deleteProject: removeProject,
+  } = useProjects();
+  const { activity, loading: activityLoading } = useActivity(5);
 
-  const [showNewProjectModal, setShowNewProjectModal] = useState(false)
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null)
-  const [uploadedFilePreview, setUploadedFilePreview] = useState<string | null>(null)
-  const [dragActive, setDragActive] = useState(false)
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
-  const [searchQuery, setSearchQuery] = useState("")
-  const [showFilters, setShowFilters] = useState(false)
-  const [selectedProject, setSelectedProject] = useState<string | null>(null)
-  const [notifications, setNotifications] = useState([
-    { id: 1, text: "Your project has been processed", time: "2 hours ago", read: false },
-    { id: 2, text: "New feature: 3D rendering is now available", time: "1 day ago", read: false },
-    { id: 3, text: "Your subscription will renew in 7 days", time: "2 days ago", read: false },
-  ])
-  const [showNotifications, setShowNotifications] = useState(false)
-  const [projectName, setProjectName] = useState("")
-  const [projectType, setProjectType] = useState("")
-  const [stylePreference, setStylePreference] = useState<number[]>([50])
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [showNewProjectModal, setShowNewProjectModal] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [uploadedFilePreview, setUploadedFilePreview] = useState<string | null>(
+    null
+  );
+  const [dragActive, setDragActive] = useState(false);
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<string | null>(null);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [projectName, setProjectName] = useState("");
+  const [projectType, setProjectType] = useState("");
+  const [stylePreference, setStylePreference] = useState<number[]>([50]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Redirect if user is not logged in
   useEffect(() => {
     if (!user && !authLoading) {
-      router.push("/login")
+      router.push("/login");
     }
-  }, [user, authLoading, router])
+  }, [user, authLoading, router]);
 
   // Filter projects based on search query
-  const filteredProjects = projects.filter((project) => project.name.toLowerCase().includes(searchQuery.toLowerCase()))
+  const filteredProjects = projects.filter((project) =>
+    project.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handleDrag = (e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
+    e.preventDefault();
+    e.stopPropagation();
     if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true)
+      setDragActive(true);
     } else if (e.type === "dragleave") {
-      setDragActive(false)
+      setDragActive(false);
     }
-  }
+  };
 
   const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setDragActive(false)
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
 
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      const file = e.dataTransfer.files[0]
-      handleFileUpload(file)
+      const file = e.dataTransfer.files[0];
+      handleFileUpload(file);
     }
-  }
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0]
-      handleFileUpload(file)
+      const file = e.target.files[0];
+      handleFileUpload(file);
     }
-  }
+  };
 
   const handleFileUpload = (file: File) => {
+    console.log("File upload handler called with file:", file.name);
+
     // Check if file is an image
     if (!file.type.startsWith("image/")) {
-      setError("Please upload an image file")
-      return
+      console.error("File is not an image:", file.type);
+      setError("Please upload an image file");
+      return;
     }
 
     // Check file size (max 10MB)
     if (file.size > 10 * 1024 * 1024) {
-      setError("File size must be less than 10MB")
-      return
+      console.error("File is too large:", file.size);
+      setError("File size must be less than 10MB");
+      return;
     }
 
-    setUploadedFile(file)
+    console.log("File passed validation, setting as uploaded file");
+    setUploadedFile(file);
 
     // Create a preview URL
-    const reader = new FileReader()
+    const reader = new FileReader();
     reader.onload = (e) => {
-      setUploadedFilePreview(e.target?.result as string)
-    }
-    reader.readAsDataURL(file)
+      console.log("FileReader loaded file successfully");
+      setUploadedFilePreview(e.target?.result as string);
+    };
+    reader.onerror = (e) => {
+      console.error("FileReader error:", e);
+      setError("Failed to preview image");
+    };
 
-    setError(null)
-  }
+    console.log("Starting FileReader to read file as data URL");
+    reader.readAsDataURL(file);
+
+    setError(null);
+  };
 
   const removeUploadedFile = () => {
-    setUploadedFile(null)
-    setUploadedFilePreview(null)
+    setUploadedFile(null);
+    setUploadedFilePreview(null);
     if (fileInputRef.current) {
-      fileInputRef.current.value = ""
+      fileInputRef.current.value = "";
     }
-  }
+  };
 
   const markAllNotificationsAsRead = () => {
-    setNotifications(notifications.map((n) => ({ ...n, read: true })))
-  }
+    setNotifications(notifications.map((n) => ({ ...n, read: true })));
+  };
 
   const removeNotification = (id: number) => {
-    setNotifications(notifications.filter((n) => n.id !== id))
-  }
+    setNotifications(notifications.filter((n) => n.id !== id));
+  };
 
   const handleCreateProject = async () => {
     if (!projectName) {
-      setError("Project name is required")
-      return
+      setError("Project name is required");
+      return;
     }
 
     if (!user) {
-      setError("You must be logged in to create a project")
-      return
+      setError("You must be logged in to create a project");
+      return;
+    }
+
+    if (!uploadedFile) {
+      setError("Please upload an image for your project");
+      return;
     }
 
     try {
-      setIsLoading(true)
-      setError(null)
+      setIsLoading(true);
+      setError(null);
 
-      await addProject(
+      console.log("Creating project with image:", uploadedFile.name);
+
+      const projectId = await addProject(
         {
           name: projectName,
           type: projectType || "other",
@@ -188,40 +217,51 @@ export default function DashboardPage() {
           stylePreference: stylePreference[0],
           transformations: 0,
         },
-        uploadedFile || undefined,
-      )
+        uploadedFile // Now required
+      );
 
-      // Reset form
-      setShowNewProjectModal(false)
-      setProjectName("")
-      setProjectType("")
-      setUploadedFile(null)
-      setUploadedFilePreview(null)
-      setStylePreference([50])
+      console.log("Project created successfully with ID:", projectId);
+
+      // Reset form and loading state before navigation
+      setIsLoading(false);
+      setShowNewProjectModal(false);
+      setProjectName("");
+      setProjectType("");
+      setUploadedFile(null);
+      setUploadedFilePreview(null);
+      setStylePreference([50]);
+
+      // Small delay before navigation to ensure state updates are processed
+      setTimeout(() => {
+        // Redirect to the project page
+        router.push(`/projects/${projectId}`);
+      }, 100);
     } catch (err) {
-      console.error("Error creating project:", err)
-      setError("Failed to create project. Please try again.")
-    } finally {
-      setIsLoading(false)
+      console.error("Error creating project:", err);
+      setError("Failed to create project. Please try again.");
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleLogout = async () => {
     try {
-      await logout()
-      router.push("/")
+      await logout();
+      router.push("/");
     } catch (error) {
-      console.error("Logout error:", error)
+      console.error("Logout error:", error);
     }
-  }
+  };
 
-  const handleDeleteProject = async (projectId: string, projectName: string) => {
+  const handleDeleteProject = async (
+    projectId: string,
+    projectName: string
+  ) => {
     try {
-      await removeProject(projectId, projectName)
+      await removeProject(projectId, projectName);
     } catch (error) {
-      console.error("Error deleting project:", error)
+      console.error("Error deleting project:", error);
     }
-  }
+  };
 
   // If still loading auth, show loading state
   if (authLoading) {
@@ -229,12 +269,16 @@ export default function DashboardPage() {
       <div className="min-h-screen flex items-center justify-center">
         <motion.div
           animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+          transition={{
+            duration: 1,
+            repeat: Number.POSITIVE_INFINITY,
+            ease: "linear",
+          }}
         >
           <Loader2 className="h-8 w-8 text-green-600" />
         </motion.div>
       </div>
-    )
+    );
   }
 
   // If no user and not loading, the useEffect will redirect to login
@@ -305,7 +349,12 @@ export default function DashboardPage() {
                 >
                   <div className="p-4 border-b border-gray-100 flex items-center justify-between">
                     <h3 className="font-medium">Notifications</h3>
-                    <Button variant="ghost" size="sm" onClick={markAllNotificationsAsRead} className="text-xs h-8">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={markAllNotificationsAsRead}
+                      className="text-xs h-8"
+                    >
                       Mark all as read
                     </Button>
                   </div>
@@ -322,11 +371,19 @@ export default function DashboardPage() {
                           }`}
                         >
                           <div
-                            className={`w-2 h-2 rounded-full mt-2 ${!notification.read ? "bg-green-500" : "bg-gray-300"}`}
+                            className={`w-2 h-2 rounded-full mt-2 ${
+                              !notification.read
+                                ? "bg-green-500"
+                                : "bg-gray-300"
+                            }`}
                           />
                           <div className="flex-1">
-                            <p className="text-sm text-gray-800">{notification.text}</p>
-                            <p className="text-xs text-gray-500 mt-1">{notification.time}</p>
+                            <p className="text-sm text-gray-800">
+                              {notification.text}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">
+                              {notification.time}
+                            </p>
                           </div>
                           <Button
                             variant="ghost"
@@ -339,7 +396,9 @@ export default function DashboardPage() {
                         </motion.div>
                       ))
                     ) : (
-                      <div className="p-4 text-center text-gray-500 text-sm">No notifications</div>
+                      <div className="p-4 text-center text-gray-500 text-sm">
+                        No notifications
+                      </div>
                     )}
                   </div>
                 </motion.div>
@@ -348,7 +407,10 @@ export default function DashboardPage() {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="flex items-center gap-2 group">
+                <Button
+                  variant="ghost"
+                  className="flex items-center gap-2 group"
+                >
                   <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-700 group-hover:bg-green-100 transition-colors">
                     {user?.photoURL ? (
                       <img
@@ -360,23 +422,34 @@ export default function DashboardPage() {
                       <User className="h-4 w-4" />
                     )}
                   </div>
-                  <span className="hidden md:inline-block">{user?.displayName || user?.email || "User"}</span>
+                  <span className="hidden md:inline-block">
+                    {user?.displayName || user?.email || "User"}
+                  </span>
                   <ChevronDown className="h-4 w-4 group-hover:rotate-180 transition-transform duration-200" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="cursor-pointer">
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={() => router.push("/profile")}
+                >
                   <User className="mr-2 h-4 w-4" />
                   <span>Profile</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer">
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={() => router.push("/settings")}
+                >
                   <Settings className="mr-2 h-4 w-4" />
                   <span>Settings</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="cursor-pointer" onClick={handleLogout}>
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={handleLogout}
+                >
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Log out</span>
                 </DropdownMenuItem>
@@ -396,7 +469,9 @@ export default function DashboardPage() {
         >
           <div>
             <h1 className="text-2xl font-bold text-gray-900">My Projects</h1>
-            <p className="text-gray-600 mt-1">Manage and create new outdoor visualizations</p>
+            <p className="text-gray-600 mt-1">
+              Manage and create new outdoor visualizations
+            </p>
           </div>
           <div className="flex items-center gap-3">
             <TooltipProvider>
@@ -424,7 +499,9 @@ export default function DashboardPage() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className={`rounded-none h-9 w-9 ${viewMode === "grid" ? "bg-gray-100" : ""}`}
+                      className={`rounded-none h-9 w-9 ${
+                        viewMode === "grid" ? "bg-gray-100" : ""
+                      }`}
                       onClick={() => setViewMode("grid")}
                     >
                       <Grid className="h-4 w-4" />
@@ -442,7 +519,9 @@ export default function DashboardPage() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className={`rounded-none h-9 w-9 ${viewMode === "list" ? "bg-gray-100" : ""}`}
+                      className={`rounded-none h-9 w-9 ${
+                        viewMode === "list" ? "bg-gray-100" : ""
+                      }`}
                       onClick={() => setViewMode("list")}
                     >
                       <List className="h-4 w-4" />
@@ -455,7 +534,10 @@ export default function DashboardPage() {
               </TooltipProvider>
             </div>
 
-            <Button onClick={() => setShowNewProjectModal(true)} className="bg-green-600 hover:bg-green-700 group">
+            <Button
+              onClick={() => setShowNewProjectModal(true)}
+              className="bg-green-600 hover:bg-green-700 group"
+            >
               <Plus className="mr-2 h-4 w-4" />
               New Project
             </Button>
@@ -473,7 +555,9 @@ export default function DashboardPage() {
             >
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Date Range</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Date Range
+                  </label>
                   <div className="flex items-center gap-2">
                     <Input type="date" className="w-full" />
                     <span>to</span>
@@ -481,7 +565,9 @@ export default function DashboardPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Project Type</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Project Type
+                  </label>
                   <select className="w-full rounded-md border border-gray-300 p-2">
                     <option value="">All Types</option>
                     <option value="backyard">Backyard</option>
@@ -491,18 +577,29 @@ export default function DashboardPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Status
+                  </label>
                   <div className="flex items-center gap-3">
                     <label className="flex items-center gap-1.5">
-                      <input type="checkbox" className="rounded text-green-600" />
+                      <input
+                        type="checkbox"
+                        className="rounded text-green-600"
+                      />
                       <span className="text-sm">Completed</span>
                     </label>
                     <label className="flex items-center gap-1.5">
-                      <input type="checkbox" className="rounded text-green-600" />
+                      <input
+                        type="checkbox"
+                        className="rounded text-green-600"
+                      />
                       <span className="text-sm">In Progress</span>
                     </label>
                     <label className="flex items-center gap-1.5">
-                      <input type="checkbox" className="rounded text-green-600" />
+                      <input
+                        type="checkbox"
+                        className="rounded text-green-600"
+                      />
                       <span className="text-sm">Draft</span>
                     </label>
                   </div>
@@ -532,7 +629,11 @@ export default function DashboardPage() {
             <div className="flex justify-center py-12">
               <motion.div
                 animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+                transition={{
+                  duration: 1,
+                  repeat: Number.POSITIVE_INFINITY,
+                  ease: "linear",
+                }}
               >
                 <Loader2 className="h-8 w-8 text-green-600" />
               </motion.div>
@@ -547,9 +648,11 @@ export default function DashboardPage() {
                         <ProjectCard
                           key={project.id}
                           project={project}
-                          onClick={() => setSelectedProject(project.id)}
+                          onClick={() => router.push(`/projects/${project.id}`)}
                           isSelected={selectedProject === project.id}
-                          onDelete={() => handleDeleteProject(project.id, project.name)}
+                          onDelete={() =>
+                            handleDeleteProject(project.id, project.name)
+                          }
                         />
                       ))}
                     </div>
@@ -559,9 +662,11 @@ export default function DashboardPage() {
                         <ProjectListItem
                           key={project.id}
                           project={project}
-                          onClick={() => setSelectedProject(project.id)}
+                          onClick={() => router.push(`/projects/${project.id}`)}
                           isSelected={selectedProject === project.id}
-                          onDelete={() => handleDeleteProject(project.id, project.name)}
+                          onDelete={() =>
+                            handleDeleteProject(project.id, project.name)
+                          }
                         />
                       ))}
                     </div>
@@ -575,7 +680,9 @@ export default function DashboardPage() {
                     >
                       <Search className="h-8 w-8 text-gray-400" />
                     </motion.div>
-                    <h3 className="text-lg font-medium text-gray-900">No projects found</h3>
+                    <h3 className="text-lg font-medium text-gray-900">
+                      No projects found
+                    </h3>
                     <p className="text-gray-600 mt-1">
                       {searchQuery
                         ? "Try adjusting your search or filters"
@@ -603,9 +710,11 @@ export default function DashboardPage() {
                         <ProjectCard
                           key={project.id}
                           project={project}
-                          onClick={() => setSelectedProject(project.id)}
+                          onClick={() => router.push(`/projects/${project.id}`)}
                           isSelected={selectedProject === project.id}
-                          onDelete={() => handleDeleteProject(project.id, project.name)}
+                          onDelete={() =>
+                            handleDeleteProject(project.id, project.name)
+                          }
                         />
                       ))}
                   </div>
@@ -617,9 +726,11 @@ export default function DashboardPage() {
                         <ProjectListItem
                           key={project.id}
                           project={project}
-                          onClick={() => setSelectedProject(project.id)}
+                          onClick={() => router.push(`/projects/${project.id}`)}
                           isSelected={selectedProject === project.id}
-                          onDelete={() => handleDeleteProject(project.id, project.name)}
+                          onDelete={() =>
+                            handleDeleteProject(project.id, project.name)
+                          }
                         />
                       ))}
                   </div>
@@ -635,9 +746,11 @@ export default function DashboardPage() {
                         <ProjectCard
                           key={project.id}
                           project={project}
-                          onClick={() => setSelectedProject(project.id)}
+                          onClick={() => router.push(`/projects/${project.id}`)}
                           isSelected={selectedProject === project.id}
-                          onDelete={() => handleDeleteProject(project.id, project.name)}
+                          onDelete={() =>
+                            handleDeleteProject(project.id, project.name)
+                          }
                         />
                       ))}
                   </div>
@@ -649,9 +762,11 @@ export default function DashboardPage() {
                         <ProjectListItem
                           key={project.id}
                           project={project}
-                          onClick={() => setSelectedProject(project.id)}
+                          onClick={() => router.push(`/projects/${project.id}`)}
                           isSelected={selectedProject === project.id}
-                          onDelete={() => handleDeleteProject(project.id, project.name)}
+                          onDelete={() =>
+                            handleDeleteProject(project.id, project.name)
+                          }
                         />
                       ))}
                   </div>
@@ -667,9 +782,11 @@ export default function DashboardPage() {
                         <ProjectCard
                           key={project.id}
                           project={project}
-                          onClick={() => setSelectedProject(project.id)}
+                          onClick={() => router.push(`/projects/${project.id}`)}
                           isSelected={selectedProject === project.id}
-                          onDelete={() => handleDeleteProject(project.id, project.name)}
+                          onDelete={() =>
+                            handleDeleteProject(project.id, project.name)
+                          }
                         />
                       ))}
                   </div>
@@ -681,9 +798,11 @@ export default function DashboardPage() {
                         <ProjectListItem
                           key={project.id}
                           project={project}
-                          onClick={() => setSelectedProject(project.id)}
+                          onClick={() => router.push(`/projects/${project.id}`)}
                           isSelected={selectedProject === project.id}
-                          onDelete={() => handleDeleteProject(project.id, project.name)}
+                          onDelete={() =>
+                            handleDeleteProject(project.id, project.name)
+                          }
                         />
                       ))}
                   </div>
@@ -692,84 +811,25 @@ export default function DashboardPage() {
             </>
           )}
         </Tabs>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.2 }}
-          className="mt-12"
-        >
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Recent Activity</h2>
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            {activityLoading ? (
-              <div className="flex justify-center py-8">
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
-                >
-                  <Loader2 className="h-6 w-6 text-green-600" />
-                </motion.div>
-              </div>
-            ) : activity.length > 0 ? (
-              activity.map((item: any, index) => (
-                <motion.div
-                  key={item.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: index * 0.1 }}
-                  className="p-4 flex items-center justify-between border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="bg-gray-100 p-2 rounded-full">
-                      {item.action.includes("Created") ? (
-                        <Plus className="h-5 w-5 text-green-500" />
-                      ) : item.action.includes("Updated") ? (
-                        <Edit className="h-5 w-5 text-blue-500" />
-                      ) : item.action.includes("Deleted") ? (
-                        <Trash2 className="h-5 w-5 text-red-500" />
-                      ) : (
-                        <Sparkles className="h-5 w-5 text-yellow-500" />
-                      )}
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-900">{item.action}</p>
-                      {item.projectName && <p className="text-sm text-gray-600">Project: {item.projectName}</p>}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-500">
-                      {item.timestamp?.toDate ? format(item.timestamp.toDate(), "MMM d, yyyy") : "Just now"}
-                    </span>
-                    {item.projectId && (
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-gray-600">
-                        <ArrowUpRight className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-                </motion.div>
-              ))
-            ) : (
-              <div className="p-8 text-center text-gray-500">
-                <p>No recent activity</p>
-              </div>
-            )}
-          </div>
-        </motion.div>
       </main>
 
       {/* New Project Modal */}
       <Dialog open={showNewProjectModal} onOpenChange={setShowNewProjectModal}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Create New Project</DialogTitle>
             <DialogDescription>
-              Upload photos of your outdoor space to start visualizing transformations.
+              Upload photos of your outdoor space to start visualizing
+              transformations.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-6 py-4">
+          <div className="space-y-6 py-4 overflow-y-auto">
             <div className="space-y-2">
-              <label htmlFor="project-name" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="project-name"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Project Name
               </label>
               <Input
@@ -782,11 +842,17 @@ export default function DashboardPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">Upload Photos</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Upload Photos (Required)
+              </label>
               <div
                 className={`border-2 border-dashed rounded-lg p-6 transition-colors ${
-                  dragActive ? "border-green-500 bg-green-50" : "border-gray-300"
-                } ${uploadedFilePreview ? "bg-gray-50" : ""}`}
+                  dragActive
+                    ? "border-green-500 bg-green-50"
+                    : uploadedFilePreview
+                    ? "border-green-300 bg-green-50"
+                    : "border-gray-300"
+                }`}
                 onDragEnter={handleDrag}
                 onDragLeave={handleDrag}
                 onDragOver={handleDrag}
@@ -795,10 +861,10 @@ export default function DashboardPage() {
                 {!uploadedFilePreview ? (
                   <div className="text-center">
                     <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                    <div className="mt-4 flex text-sm leading-6 text-gray-600">
+                    <div className="mt-4 flex text-sm leading-6 text-gray-600 justify-center">
                       <label
                         htmlFor="file-upload"
-                        className="relative cursor-pointer rounded-md font-semibold text-green-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-green-600"
+                        className="relative cursor-pointer rounded-md font-semibold text-green-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-green-600 hover:text-green-700"
                       >
                         <span>Upload a file</span>
                         <input
@@ -813,7 +879,9 @@ export default function DashboardPage() {
                       </label>
                       <p className="pl-1">or drag and drop</p>
                     </div>
-                    <p className="text-xs leading-5 text-gray-600">PNG, JPG, GIF up to 10MB</p>
+                    <p className="text-xs leading-5 text-gray-600 mt-2">
+                      PNG, JPG, GIF up to 10MB
+                    </p>
                   </div>
                 ) : (
                   <div className="relative">
@@ -822,9 +890,12 @@ export default function DashboardPage() {
                       alt="Uploaded preview"
                       className="mx-auto max-h-48 rounded-md"
                     />
+                    <div className="text-center mt-3 text-sm text-green-600">
+                      <span>✓ Image uploaded successfully</span>
+                    </div>
                     <button
                       type="button"
-                      className="absolute -top-2 -right-2 rounded-full bg-red-500 p-1 text-white shadow-sm hover:bg-red-600"
+                      className="absolute -top-2 -right-2 rounded-full bg-red-500 p-1 text-white shadow-sm hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
                       onClick={removeUploadedFile}
                     >
                       <X className="h-4 w-4" />
@@ -833,11 +904,16 @@ export default function DashboardPage() {
                 )}
               </div>
               {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
-              <p className="text-xs text-gray-500 mt-2">You can upload multiple photos to get better results</p>
+              <p className="text-xs text-gray-500 mt-2">
+                An image is required to create a project. This will be used as
+                the base for transformations.
+              </p>
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">Project Type</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Project Type
+              </label>
               <RadioGroup value={projectType} onValueChange={setProjectType}>
                 <div className="grid grid-cols-2 gap-4">
                   {["backyard", "frontyard", "garden", "patio"].map((type) => (
@@ -853,7 +929,9 @@ export default function DashboardPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">Style Preference</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Style Preference
+              </label>
               <div className="space-y-4">
                 <div className="flex justify-between text-sm text-gray-500">
                   <span>Natural</span>
@@ -871,14 +949,19 @@ export default function DashboardPage() {
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <label className="text-sm font-medium text-gray-700">Advanced Options</label>
+                <label className="text-sm font-medium text-gray-700">
+                  Advanced Options
+                </label>
                 <Switch id="advanced-options" />
               </div>
             </div>
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowNewProjectModal(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowNewProjectModal(false)}
+            >
               Cancel
             </Button>
             <Button
@@ -890,7 +973,11 @@ export default function DashboardPage() {
                 <>
                   <motion.div
                     animate={{ rotate: 360 }}
-                    transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+                    transition={{
+                      duration: 1,
+                      repeat: Number.POSITIVE_INFINITY,
+                      ease: "linear",
+                    }}
                     className="mr-2"
                   >
                     <Loader2 className="h-4 w-4" />
@@ -905,7 +992,7 @@ export default function DashboardPage() {
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }
 
 // Project Card Component
@@ -915,19 +1002,21 @@ function ProjectCard({
   isSelected,
   onDelete,
 }: {
-  project: any
-  onClick: () => void
-  isSelected: boolean
-  onDelete: () => void
+  project: any;
+  onClick: () => void;
+  isSelected: boolean;
+  onDelete: () => void;
 }) {
-  const [isHovered, setIsHovered] = useState(false)
+  const [isHovered, setIsHovered] = useState(false);
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className={`group cursor-pointer ${isSelected ? "ring-2 ring-green-500 ring-offset-2" : ""}`}
+      className={`group cursor-pointer ${
+        isSelected ? "ring-2 ring-green-500 ring-offset-2" : ""
+      }`}
       onClick={onClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -950,7 +1039,8 @@ function ProjectCard({
             >
               {project.status === "in-progress"
                 ? "In Progress"
-                : project.status.charAt(0).toUpperCase() + project.status.slice(1)}
+                : project.status.charAt(0).toUpperCase() +
+                  project.status.slice(1)}
             </Badge>
           </div>
 
@@ -963,11 +1053,19 @@ function ProjectCard({
                 transition={{ duration: 0.2 }}
                 className="absolute inset-0 bg-black/40 flex items-center justify-center gap-2"
               >
-                <Button size="sm" variant="secondary" className="bg-white hover:bg-gray-100">
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  className="bg-white hover:bg-gray-100"
+                >
                   <Edit className="h-4 w-4 mr-1" />
                   Edit
                 </Button>
-                <Button size="sm" variant="secondary" className="bg-white hover:bg-gray-100">
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  className="bg-white hover:bg-gray-100"
+                >
                   <Maximize2 className="h-4 w-4 mr-1" />
                   View
                 </Button>
@@ -977,7 +1075,9 @@ function ProjectCard({
         </div>
         <CardContent className="p-4">
           <div className="flex justify-between items-start mb-2">
-            <h3 className="font-semibold text-lg text-gray-900">{project.name}</h3>
+            <h3 className="font-semibold text-lg text-gray-900">
+              {project.name}
+            </h3>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -1002,8 +1102,8 @@ function ProjectCard({
                 <DropdownMenuItem
                   className="text-red-600 cursor-pointer"
                   onClick={(e) => {
-                    e.stopPropagation()
-                    onDelete()
+                    e.stopPropagation();
+                    onDelete();
                   }}
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
@@ -1014,14 +1114,18 @@ function ProjectCard({
           </div>
           <div className="flex justify-between items-center">
             <p className="text-sm text-gray-500">
-              {project.createdAt?.toDate ? format(project.createdAt.toDate(), "MMM d, yyyy") : "Recent"}
+              {project.createdAt?.toDate
+                ? format(project.createdAt.toDate(), "MMM d, yyyy")
+                : "Recent"}
             </p>
-            <p className="text-sm text-gray-500">{project.transformations || 0} transformations</p>
+            <p className="text-sm text-gray-500">
+              {project.transformations || 0} transformations
+            </p>
           </div>
         </CardContent>
       </Card>
     </motion.div>
-  )
+  );
 }
 
 // Project List Item Component
@@ -1031,10 +1135,10 @@ function ProjectListItem({
   isSelected,
   onDelete,
 }: {
-  project: any
-  onClick: () => void
-  isSelected: boolean
-  onDelete: () => void
+  project: any;
+  onClick: () => void;
+  isSelected: boolean;
+  onDelete: () => void;
 }) {
   return (
     <motion.div
@@ -1057,7 +1161,9 @@ function ProjectListItem({
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between">
-            <h3 className="font-medium text-gray-900 truncate">{project.name}</h3>
+            <h3 className="font-medium text-gray-900 truncate">
+              {project.name}
+            </h3>
             <Badge
               className={`ml-2 ${
                 project.status === "completed" ? "bg-green-500" : ""
@@ -1067,12 +1173,17 @@ function ProjectListItem({
             >
               {project.status === "in-progress"
                 ? "In Progress"
-                : project.status.charAt(0).toUpperCase() + project.status.slice(1)}
+                : project.status.charAt(0).toUpperCase() +
+                  project.status.slice(1)}
             </Badge>
           </div>
           <div className="flex items-center text-sm text-gray-500 mt-1">
             <Calendar className="h-3 w-3 mr-1" />
-            <span>{project.createdAt?.toDate ? format(project.createdAt.toDate(), "MMM d, yyyy") : "Recent"}</span>
+            <span>
+              {project.createdAt?.toDate
+                ? format(project.createdAt.toDate(), "MMM d, yyyy")
+                : "Recent"}
+            </span>
             <span className="mx-2">•</span>
             <span>{project.transformations || 0} transformations</span>
           </div>
@@ -1119,8 +1230,8 @@ function ProjectListItem({
               <DropdownMenuItem
                 className="text-red-600 cursor-pointer"
                 onClick={(e) => {
-                  e.stopPropagation()
-                  onDelete()
+                  e.stopPropagation();
+                  onDelete();
                 }}
               >
                 <Trash2 className="mr-2 h-4 w-4" />
@@ -1131,6 +1242,5 @@ function ProjectListItem({
         </div>
       </div>
     </motion.div>
-  )
+  );
 }
-
