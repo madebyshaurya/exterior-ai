@@ -88,6 +88,7 @@ export default function LoginPage() {
     } catch (error) {
       console.error("Google login error:", error);
       setAuthError("Failed to sign in with Google. Please try again.");
+
       setIsLoading(false);
 
       // Log auth state after error
