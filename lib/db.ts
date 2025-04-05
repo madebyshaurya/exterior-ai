@@ -15,6 +15,7 @@ import {
   type Timestamp,
 } from "firebase/firestore";
 import { db } from "./firebase";
+import { TransformationRecord } from "@/types";
 
 // Project type definition
 export interface Project {
@@ -252,6 +253,76 @@ export async function getUserActivity(userId: string, limit = 10) {
     }
   } catch (error) {
     console.error("Error getting user activity:", error);
+    throw error;
+  }
+}
+
+// Add a transformation record to a project's history
+export async function addTransformationRecord(
+  projectId: string,
+  record: Omit<TransformationRecord, "id" | "timestamp">
+) {
+  try {
+    const transformationsRef = collection(
+      db,
+      "projects",
+      projectId,
+      "transformations"
+    );
+    const docRef = await addDoc(transformationsRef, {
+      ...record,
+      timestamp: serverTimestamp(),
+    });
+
+    return docRef.id;
+  } catch (error) {
+    console.error("Error adding transformation record:", error);
+    throw error;
+  }
+}
+
+// Get all transformation records for a project
+export async function getProjectTransformations(projectId: string) {
+  try {
+    // Create query with ordering
+    const transformationsRef = collection(
+      db,
+      "projects",
+      projectId,
+      "transformations"
+    );
+    const q = query(transformationsRef, orderBy("timestamp", "desc"));
+
+    try {
+      const querySnapshot = await getDocs(q);
+      return querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as TransformationRecord[];
+    } catch (indexError) {
+      console.warn(
+        "Index not available for transformations, falling back to basic query:",
+        indexError
+      );
+
+      // Fallback to basic query without ordering
+      const basicSnapshot = await getDocs(transformationsRef);
+      const transformations = basicSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as TransformationRecord[];
+
+      // Sort the results in memory
+      transformations.sort((a, b) => {
+        const dateA = a.timestamp?.toDate?.() || new Date(0);
+        const dateB = b.timestamp?.toDate?.() || new Date(0);
+        return dateB.getTime() - dateA.getTime(); // descending order
+      });
+
+      return transformations;
+    }
+  } catch (error) {
+    console.error("Error getting project transformations:", error);
     throw error;
   }
 }

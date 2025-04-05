@@ -4,7 +4,12 @@ import { useState, useEffect, useRef, use } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/context/auth-context";
-import { getProject, updateProject } from "@/lib/db";
+import {
+  getProject,
+  updateProject,
+  getProjectTransformations,
+  addTransformationRecord,
+} from "@/lib/db";
 import {
   Mic,
   MicOff,
@@ -16,10 +21,15 @@ import {
   Download,
   Camera,
   Sparkles,
+  Maximize2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import VoiceInput from "@/components/voice-input";
+import ImageComparison from "@/components/image-comparison";
+import TransformationHistory from "@/components/transformation-history";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { toast } from "sonner";
+import { TransformationRecord } from "@/types";
 import {
   Dialog,
   DialogContent,
@@ -46,6 +56,7 @@ export default function ProjectDetailPage({
   const [isRecording, setIsRecording] = useState(false);
   const [transcript, setTranscript] = useState("");
   const [processingVoice, setProcessingVoice] = useState(false);
+  const [inputMode, setInputMode] = useState<"voice" | "text">("voice");
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [editName, setEditName] = useState("");
@@ -59,6 +70,17 @@ export default function ProjectDetailPage({
     null
   );
 
+  // Image comparison states
+  const [showComparison, setShowComparison] = useState(false);
+  const [previousImage, setPreviousImage] = useState<string | null>(null);
+  const [newImage, setNewImage] = useState<string | null>(null);
+
+  // Transformation history state
+  const [transformationHistory, setTransformationHistory] = useState<
+    TransformationRecord[]
+  >([]);
+  const [showHistory, setShowHistory] = useState(false);
+
   // Reference for speech recognition
   const recognitionRef = useRef<any>(null);
 
@@ -71,6 +93,12 @@ export default function ProjectDetailPage({
         setLoading(true);
         const projectData = await getProject(unwrappedParams.id);
         setProject(projectData);
+
+        // Fetch transformation history
+        const transformations = await getProjectTransformations(
+          unwrappedParams.id
+        );
+        setTransformationHistory(transformations);
       } catch (err) {
         console.error("Error fetching project:", err);
         setError("Failed to load project. Please try again.");
@@ -408,20 +436,36 @@ export default function ProjectDetailPage({
           className="grid grid-cols-1 lg:grid-cols-2 gap-8"
         >
           {/* Project Image */}
-          <Card className="overflow-hidden">
-            <motion.div
-              className="aspect-video relative"
-              whileHover={{ scale: 1.02 }}
-              transition={{ duration: 0.2 }}
-            >
-              <img
-                src={
-                  project.thumbnail || "/placeholder.svg?height=600&width=800"
-                }
-                alt={project.name}
-                className="object-cover w-full h-full"
-              />
-            </motion.div>
+          <Card className="overflow-hidden project-image">
+            <div className="aspect-video relative">
+              {previousImage && newImage ? (
+                // Show comparison slider when we have both images
+                <div className="w-full h-full">
+                  <ImageComparison
+                    beforeImage={previousImage}
+                    afterImage={newImage || project.thumbnail}
+                    beforeLabel="Before"
+                    afterLabel="After"
+                  />
+                </div>
+              ) : (
+                // Show regular image when no comparison is available
+                <motion.div
+                  className="w-full h-full"
+                  whileHover={{ scale: 1.02 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <img
+                    src={
+                      project.thumbnail ||
+                      "/placeholder.svg?height=600&width=800"
+                    }
+                    alt={project.name}
+                    className="object-cover w-full h-full"
+                  />
+                </motion.div>
+              )}
+            </div>
             <CardFooter className="p-4 flex justify-between">
               <div className="flex space-x-2">
                 <Button variant="outline" size="sm" onClick={handleEdit}>
@@ -509,122 +553,116 @@ export default function ProjectDetailPage({
           </Card>
         </motion.div>
 
-        {/* Action Button */}
+        {/* Voice/Text Input Section */}
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.1 }}
-          className="flex justify-center mt-6 mb-8"
-        >
-          <Button
-            onClick={handleGenerateNew}
-            className="bg-green-600 hover:bg-green-700 px-6"
-            size="lg"
-          >
-            <Sparkles className="mr-2 h-5 w-5" />
-            Generate New Transformation
-          </Button>
-        </motion.div>
-
-        {/* Voice Command Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.2 }}
-          className="mt-8"
+          className="mt-8 max-w-4xl mx-auto"
         >
           <Card>
             <CardContent className="p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-4">
-                Voice Commands
+                Generate New Transformation
               </h2>
 
-              <div className="bg-gray-50 p-4 rounded-md mb-4 min-h-[100px] relative">
-                <AnimatePresence>
-                  {isRecording && (
-                    <motion.div
-                      className="absolute top-2 right-2 flex space-x-1"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                    >
-                      <motion.div
-                        className="w-2 h-2 bg-red-500 rounded-full"
-                        animate={{ scale: [1, 1.2, 1] }}
-                        transition={{ repeat: Infinity, duration: 1 }}
-                      />
-                      <motion.div
-                        className="w-2 h-2 bg-red-500 rounded-full"
-                        animate={{ scale: [1, 1.2, 1] }}
-                        transition={{
-                          repeat: Infinity,
-                          duration: 1,
-                          delay: 0.2,
-                        }}
-                      />
-                      <motion.div
-                        className="w-2 h-2 bg-red-500 rounded-full"
-                        animate={{ scale: [1, 1.2, 1] }}
-                        transition={{
-                          repeat: Infinity,
-                          duration: 1,
-                          delay: 0.4,
-                        }}
-                      />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+              <div className="bg-white rounded-lg p-4">
+                <VoiceInput
+                  onTranscriptGenerated={(text) => setTranscript(text)}
+                  onImageGenerated={async (
+                    url,
+                    text,
+                    displayUrl,
+                    deleteUrl
+                  ) => {
+                    try {
+                      // Save the previous image for comparison
+                      if (project && project.thumbnail) {
+                        setPreviousImage(project.thumbnail);
+                      }
 
-                <p className="text-gray-700">
-                  {transcript ||
-                    "Tap the microphone button and speak to give commands..."}
-                </p>
-              </div>
+                      // Set the new image
+                      setNewImage(url);
 
-              <div className="flex space-x-4">
-                <Button
-                  onClick={toggleRecording}
-                  variant={isRecording ? "destructive" : "default"}
-                  className={`${
-                    isRecording
-                      ? "bg-red-500 hover:bg-red-600"
-                      : "bg-green-600 hover:bg-green-700"
-                  }`}
-                >
-                  {isRecording ? (
-                    <>
-                      <MicOff className="mr-2 h-4 w-4" />
-                      Stop Recording
-                    </>
-                  ) : (
-                    <>
-                      <Mic className="mr-2 h-4 w-4" />
-                      Start Recording
-                    </>
-                  )}
-                </Button>
+                      // Update the project with the new image
+                      if (project) {
+                        // Now we're using ImgBB URLs which are much smaller and won't exceed Firestore limits
+                        await updateProject(project.id, {
+                          thumbnail: url, // This is now a regular URL, not a data URL
+                          transformations: (project.transformations || 0) + 1,
+                          status: "completed",
+                        });
 
-                <Button
-                  onClick={handleProcessVoiceCommand}
-                  disabled={!transcript.trim() || processingVoice}
-                >
-                  {processingVoice ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Processing...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="mr-2 h-4 w-4" />
-                      Process Command
-                    </>
-                  )}
-                </Button>
+                        // Add to transformation history
+                        const transformationId = await addTransformationRecord(
+                          project.id,
+                          {
+                            imageUrl: url,
+                            prompt: text || transcript,
+                            previousImageUrl: project.thumbnail,
+                          }
+                        );
+
+                        // Fetch updated transformation history
+                        const updatedHistory = await getProjectTransformations(
+                          project.id
+                        );
+                        setTransformationHistory(updatedHistory);
+
+                        // Update local state
+                        setProject({
+                          ...project,
+                          thumbnail: url,
+                          transformations: (project.transformations || 0) + 1,
+                          status: "completed",
+                        });
+
+                        // No need to show a popup comparison anymore
+                        // The comparison is now integrated into the thumbnail
+
+                        toast.success("New transformation generated!");
+                      }
+                    } catch (err) {
+                      console.error("Error updating project:", err);
+                      toast.error(
+                        "Failed to save transformation: " +
+                          (err instanceof Error ? err.message : "Unknown error")
+                      );
+                    }
+                  }}
+                  isGenerating={processingVoice}
+                  setIsGenerating={setProcessingVoice}
+                  inputMode={inputMode}
+                  setInputMode={setInputMode}
+                  textInput={transcript}
+                  setTextInput={setTranscript}
+                />
               </div>
             </CardContent>
           </Card>
         </motion.div>
+
+        {/* Transformation History Section */}
+        {transformationHistory.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.2 }}
+            className="mt-8 max-w-4xl mx-auto mb-8"
+          >
+            <TransformationHistory
+              transformations={transformationHistory}
+              onCompare={(before, after) => {
+                setPreviousImage(before);
+                setNewImage(after);
+              }}
+            />
+          </motion.div>
+        )}
       </main>
+
+      {/* Image comparison is now integrated directly in the thumbnail */}
 
       {/* Dialogs */}
       <ShareDialog

@@ -26,6 +26,7 @@ import {
   ArrowUpRight,
   Sparkles,
   Loader2,
+  Mic,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -311,6 +312,24 @@ export default function DashboardPage() {
           </div>
 
           <div className="flex items-center gap-3">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="bg-purple-50 border-purple-200 hover:bg-purple-100"
+                    onClick={() => router.push("/voice-to-image")}
+                  >
+                    <Mic className="h-5 w-5 text-purple-600" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Voice to Image</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
