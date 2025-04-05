@@ -5,10 +5,7 @@ import { ArrowRight, Sparkles, Upload, Zap } from "lucide-react";
 import Logo from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-// Import the new components at the top of the file
-import TestimonialCarousel from "@/components/testimonial-carousel";
 import AnimatedCounter from "@/components/animated-counter";
-import FaqAccordion from "@/components/faq-accordion";
 import ParallaxElement from "@/components/parallax-element";
 
 export default function LandingPage() {
@@ -20,15 +17,6 @@ export default function LandingPage() {
           <Logo size="md" />
         </div>
         <div className="flex items-center gap-4">
-          <Link href="/features" className="text-gray-600 hover:text-gray-900">
-            Features
-          </Link>
-          <Link href="/pricing" className="text-gray-600 hover:text-gray-900">
-            Pricing
-          </Link>
-          <Link href="/about" className="text-gray-600 hover:text-gray-900">
-            About
-          </Link>
           <Link href="/login">
             <Button variant="outline" className="ml-4">
               Log in
@@ -41,7 +29,6 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      {/* Update the Hero section to include parallax elements */}
       <section className="container mx-auto px-6 py-20 relative overflow-hidden">
         <div className="absolute -top-20 -right-20 w-64 h-64 bg-green-100 rounded-full opacity-50 blur-3xl" />
         <div className="absolute -bottom-32 -left-20 w-80 h-80 bg-blue-100 rounded-full opacity-40 blur-3xl" />
@@ -141,7 +128,6 @@ export default function LandingPage() {
       </section>
 
       {/* Features Section */}
-      {/* Update the Features section with staggered animations and hover effects */}
       <section className="container mx-auto px-6 py-20">
         <div className="text-center mb-16">
           <motion.h2
@@ -218,80 +204,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Before/After Showcase */}
-      {/* Update the Before/After Showcase with interactive hover effects */}
-      <section className="container mx-auto px-6 py-20">
-        <div className="text-center mb-16">
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: true }}
-            className="text-3xl font-bold text-gray-900"
-          >
-            See the transformation
-          </motion.h2>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-          {[1, 2].map((item) => (
-            <motion.div
-              key={item}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: item * 0.1 }}
-              viewport={{ once: true }}
-              className="relative group cursor-pointer"
-            >
-              <div className="relative overflow-hidden rounded-xl shadow-lg">
-                <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent z-10" />
-                <motion.img
-                  src={`/placeholder.svg?height=400&width=600`}
-                  alt={`Before transformation ${item}`}
-                  className="w-full h-auto"
-                  whileHover={{ scale: 1.05 }}
-                  transition={{ duration: 0.4 }}
-                />
-                <div className="absolute top-4 left-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm z-20">
-                  Before
-                </div>
-                <motion.div
-                  className="absolute inset-0 bg-black/40 z-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  initial={{ opacity: 0 }}
-                  whileHover={{ opacity: 1 }}
-                >
-                  <span className="text-white font-medium bg-black/50 px-4 py-2 rounded-md">
-                    View Transformation
-                  </span>
-                </motion.div>
-              </div>
-              <div className="relative mt-4 overflow-hidden rounded-xl shadow-lg">
-                <div className="absolute inset-0 bg-gradient-to-r from-green-600/30 to-transparent z-10" />
-                <motion.img
-                  src={`/placeholder.svg?height=400&width=600`}
-                  alt={`After transformation ${item}`}
-                  className="w-full h-auto"
-                  whileHover={{ scale: 1.05 }}
-                  transition={{ duration: 0.4 }}
-                />
-                <div className="absolute top-4 left-4 bg-green-600 text-white px-3 py-1 rounded-full text-sm z-20">
-                  After
-                </div>
-                <motion.div
-                  className="absolute inset-0 bg-green-600/40 z-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  initial={{ opacity: 0 }}
-                  whileHover={{ opacity: 1 }}
-                >
-                  <span className="text-white font-medium bg-green-700/70 px-4 py-2 rounded-md">
-                    View Details
-                  </span>
-                </motion.div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
       {/* Stats Section */}
       <section className="container mx-auto px-6 py-20">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -303,7 +215,6 @@ export default function LandingPage() {
       </section>
 
       {/* CTA Section */}
-      {/* Update the CTA section with more engaging animations */}
       <section className="container mx-auto px-6 py-20">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -385,25 +296,6 @@ export default function LandingPage() {
             </Link>
           </motion.div>
         </motion.div>
-      </section>
-
-      {/* FAQ Section */}
-      <section className="container mx-auto px-6 py-20">
-        <div className="text-center mb-16">
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: true }}
-            className="text-3xl font-bold text-gray-900"
-          >
-            Frequently Asked Questions
-          </motion.h2>
-        </div>
-
-        <div className="max-w-3xl mx-auto">
-          <FaqAccordion />
-        </div>
       </section>
 
       {/* Footer */}
