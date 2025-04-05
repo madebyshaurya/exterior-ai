@@ -12,6 +12,10 @@ export const metadata: Metadata = {
   description:
     "Upload photos of your yard and visualize potential landscaping designs using AI",
   generator: "v0.dev",
+  icons: {
+    icon: "/favicon.png",
+    apple: "/favicon.png",
+  },
 };
 
 export default function RootLayout({

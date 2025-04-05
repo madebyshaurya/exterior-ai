@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Leaf, Sparkles, Upload, Zap } from "lucide-react";
+import { ArrowRight, Sparkles, Upload, Zap } from "lucide-react";
+import Logo from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 // Import the new components at the top of the file
@@ -16,8 +17,7 @@ export default function LandingPage() {
       {/* Navigation */}
       <nav className="container mx-auto px-6 py-6 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Leaf className="h-6 w-6 text-green-600" />
-          <span className="text-xl font-bold text-gray-900">ExteriorAI</span>
+          <Logo size="md" />
         </div>
         <div className="flex items-center gap-4">
           <Link href="/features" className="text-gray-600 hover:text-gray-900">
@@ -103,7 +103,7 @@ export default function LandingPage() {
               >
                 <div className="relative rounded-xl overflow-hidden shadow-2xl">
                   <img
-                    src="/placeholder.svg?height=600&width=800"
+                    src="/hero.png"
                     alt="Before and after transformation of a backyard"
                     className="w-full h-auto"
                   />
@@ -412,10 +412,7 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center gap-2">
-                <Leaf className="h-6 w-6 text-green-600" />
-                <span className="text-xl font-bold text-gray-900">
-                  ExteriorAI
-                </span>
+                <Logo size="md" />
               </div>
               <p className="mt-4 text-gray-600">
                 Transforming outdoor spaces with the power of AI visualization.

@@ -31,6 +31,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import Logo from "@/components/logo";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -295,8 +296,7 @@ export default function DashboardPage() {
       >
         <div className="container mx-auto px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Leaf className="h-6 w-6 text-green-600" />
-            <span className="text-xl font-bold text-gray-900">ExteriorAI</span>
+            <Logo size="md" />
           </div>
 
           <div className="hidden md:flex items-center gap-4 flex-1 max-w-md mx-8">
@@ -963,15 +963,6 @@ export default function DashboardPage() {
                   step={1}
                   className="w-full"
                 />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium text-gray-700">
-                  Advanced Options
-                </label>
-                <Switch id="advanced-options" />
               </div>
             </div>
           </div>

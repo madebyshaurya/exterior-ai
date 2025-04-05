@@ -28,6 +28,7 @@ import VoiceInput from "@/components/voice-input";
 import ImageComparison from "@/components/image-comparison";
 import TransformationHistory from "@/components/transformation-history";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import Logo from "@/components/logo";
 import { toast } from "sonner";
 import { TransformationRecord } from "@/types";
 import {
@@ -405,10 +406,11 @@ export default function ProjectDetailPage({
         className="bg-white border-b border-gray-200 sticky top-0 z-30"
       >
         <div className="container mx-auto px-6 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon" onClick={goBack}>
               <ArrowLeft className="h-5 w-5" />
             </Button>
+            <Logo size="sm" />
             <h1 className="text-xl font-bold text-gray-900">{project.name}</h1>
           </div>
           <div>

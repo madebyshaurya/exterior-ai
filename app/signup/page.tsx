@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Leaf, Loader2, Check, AlertCircle } from "lucide-react";
+import { ArrowLeft, Loader2, Check, AlertCircle } from "lucide-react";
+import Logo from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/context/auth-context";
@@ -146,10 +147,7 @@ export default function SignupPage() {
               animate={{ scale: 1 }}
               transition={{ duration: 0.5, type: "spring" }}
             >
-              <Leaf className="h-8 w-8 text-green-600" />
-              <span className="text-2xl font-bold text-gray-900">
-                ExteriorAI
-              </span>
+              <Logo size="lg" />
             </motion.div>
           </div>
 

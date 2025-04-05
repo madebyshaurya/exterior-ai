@@ -7,6 +7,7 @@ import { useAuth } from "@/context/auth-context";
 import { doc, updateDoc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { User, Settings, Loader2, Camera, Save, ArrowLeft } from "lucide-react";
+import Logo from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,12 +30,12 @@ export default function ProfilePage() {
   useEffect(() => {
     async function fetchUserData() {
       if (!user) return;
-      
+
       try {
         setLoading(true);
         const userRef = doc(db, "users", user.uid);
         const userSnap = await getDoc(userRef);
-        
+
         if (userSnap.exists()) {
           const data = userSnap.data();
           setUserData(data);
@@ -70,19 +71,19 @@ export default function ProfilePage() {
 
   const handleSaveProfile = async () => {
     if (!user) return;
-    
+
     try {
       setSaving(true);
       const userRef = doc(db, "users", user.uid);
-      
+
       await updateDoc(userRef, {
         displayName,
         email,
         photoURL,
         bio,
-        updatedAt: new Date()
+        updatedAt: new Date(),
       });
-      
+
       toast.success("Profile updated successfully");
     } catch (err) {
       console.error("Error updating profile:", err);
@@ -102,7 +103,11 @@ export default function ProfilePage() {
       <div className="min-h-screen flex items-center justify-center">
         <motion.div
           animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+          transition={{
+            duration: 1,
+            repeat: Number.POSITIVE_INFINITY,
+            ease: "linear",
+          }}
         >
           <Loader2 className="h-8 w-8 text-green-600" />
         </motion.div>
@@ -120,15 +125,16 @@ export default function ProfilePage() {
         className="bg-white border-b border-gray-200 sticky top-0 z-30"
       >
         <div className="container mx-auto px-6 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon" onClick={goBack}>
               <ArrowLeft className="h-5 w-5" />
             </Button>
+            <Logo size="sm" />
             <h1 className="text-xl font-bold text-gray-900">My Profile</h1>
           </div>
           <div>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => router.push("/settings")}
               className="flex items-center gap-2"
             >
@@ -157,7 +163,7 @@ export default function ProfilePage() {
                 Account
               </TabsTrigger>
             </TabsList>
-            
+
             <TabsContent value="profile">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Profile Photo */}
@@ -166,9 +172,9 @@ export default function ProfilePage() {
                     <div className="relative mb-4">
                       <div className="h-32 w-32 rounded-full overflow-hidden bg-gray-200">
                         {photoURL ? (
-                          <img 
-                            src={photoURL} 
-                            alt={displayName || "User"} 
+                          <img
+                            src={photoURL}
+                            alt={displayName || "User"}
                             className="h-full w-full object-cover"
                           />
                         ) : (
@@ -177,18 +183,20 @@ export default function ProfilePage() {
                           </div>
                         )}
                       </div>
-                      <Button 
-                        size="icon" 
+                      <Button
+                        size="icon"
                         className="absolute bottom-0 right-0 rounded-full h-8 w-8 bg-green-600 hover:bg-green-700"
                       >
                         <Camera className="h-4 w-4 text-white" />
                       </Button>
                     </div>
-                    <h2 className="text-xl font-bold text-center">{displayName || "User"}</h2>
+                    <h2 className="text-xl font-bold text-center">
+                      {displayName || "User"}
+                    </h2>
                     <p className="text-gray-500 text-center mt-1">{email}</p>
                   </CardContent>
                 </Card>
-                
+
                 {/* Profile Details */}
                 <Card className="md:col-span-2">
                   <CardHeader>
@@ -200,19 +208,19 @@ export default function ProfilePage() {
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           Display Name
                         </label>
-                        <Input 
-                          value={displayName} 
+                        <Input
+                          value={displayName}
                           onChange={(e) => setDisplayName(e.target.value)}
                           placeholder="Your name"
                         />
                       </div>
-                      
+
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           Email
                         </label>
-                        <Input 
-                          value={email} 
+                        <Input
+                          value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           placeholder="Your email"
                           disabled={true}
@@ -222,21 +230,21 @@ export default function ProfilePage() {
                           Email cannot be changed
                         </p>
                       </div>
-                      
+
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           Bio
                         </label>
-                        <textarea 
-                          value={bio} 
+                        <textarea
+                          value={bio}
                           onChange={(e) => setBio(e.target.value)}
                           placeholder="Tell us about yourself"
                           className="w-full min-h-[100px] p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                         />
                       </div>
-                      
+
                       <div className="pt-4">
-                        <Button 
+                        <Button
                           onClick={handleSaveProfile}
                           disabled={saving}
                           className="bg-green-600 hover:bg-green-700"
@@ -259,7 +267,7 @@ export default function ProfilePage() {
                 </Card>
               </div>
             </TabsContent>
-            
+
             <TabsContent value="account">
               <Card>
                 <CardHeader>
@@ -274,16 +282,16 @@ export default function ProfilePage() {
                         Upgrade to Premium
                       </Button>
                     </div>
-                    
+
                     <div>
                       <h3 className="text-lg font-medium mb-2">Password</h3>
-                      <Button variant="outline">
-                        Change Password
-                      </Button>
+                      <Button variant="outline">Change Password</Button>
                     </div>
-                    
+
                     <div>
-                      <h3 className="text-lg font-medium mb-2">Connected Accounts</h3>
+                      <h3 className="text-lg font-medium mb-2">
+                        Connected Accounts
+                      </h3>
                       <div className="flex items-center justify-between p-3 border border-gray-200 rounded-md">
                         <div className="flex items-center gap-3">
                           <div className="h-8 w-8 bg-red-100 rounded-full flex items-center justify-center">
@@ -299,10 +307,15 @@ export default function ProfilePage() {
                         </Button>
                       </div>
                     </div>
-                    
+
                     <div>
-                      <h3 className="text-lg font-medium mb-2 text-red-600">Danger Zone</h3>
-                      <Button variant="outline" className="text-red-600 border-red-200 hover:bg-red-50">
+                      <h3 className="text-lg font-medium mb-2 text-red-600">
+                        Danger Zone
+                      </h3>
+                      <Button
+                        variant="outline"
+                        className="text-red-600 border-red-200 hover:bg-red-50"
+                      >
                         Delete Account
                       </Button>
                     </div>
